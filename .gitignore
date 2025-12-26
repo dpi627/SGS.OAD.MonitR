@@ -1,0 +1,58 @@
+# === OS / File system ===
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# === VS / MSBuild / .NET build outputs ===
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+*.pdb
+*.mdb
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# === Visual Studio cache / workspace ===
+.vs/
+.vscode/
+
+# (可選) VS Code 建議保留專案設定：只忽略個人狀態檔
+# !.vscode/settings.json
+# !.vscode/launch.json
+# !.vscode/tasks.json
+# !.vscode/extensions.json
+# .vscode/*.code-workspace
+
+# === NuGet / paket ===
+**/packages/*
+!**/packages/build/
+# 若你使用 packages.config 且需要保留 packages（通常不需要）請調整
+# packages/
+
+# === Test results ===
+TestResults/
+*.trx
+*.coverage
+*.coveragexml
+
+# === dotnet tools / local cache ===
+.dotnet/
+.artifacts/
+
+# === Publish / build artifacts ===
+publish/
+**/app.publish/
+
+# === Rider / JetBrains (若團隊有人用) ===
+.idea/
+*.sln.iml
+
+# === Azure Functions / local settings (若有) ===
+local.settings.json
+
+# === User secrets (依團隊規範) ===
+secrets.json
+.env
+.env.*
