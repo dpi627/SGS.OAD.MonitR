@@ -1,0 +1,102 @@
+<UserControl x:Class="HostMonitor.Views.HostListView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:models="clr-namespace:HostMonitor.Models.Enums"
+             mc:Ignorable="d">
+    <DockPanel Margin="16">
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,16">
+            <Button Content="新增主機"
+                    Command="{Binding AddHostCommand}"
+                    Style="{StaticResource MaterialDesignRaisedButton}" />
+            <TextBox materialDesign:HintAssist.Hint="搜尋主機..."
+                     Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                     Width="200"
+                     Margin="16,0" />
+        </StackPanel>
+
+        <Grid>
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <ItemsControl ItemsSource="{Binding Hosts}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <materialDesign:Card Margin="0,0,0,8" Padding="16">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="{Binding Name}" FontSize="18" FontWeight="Bold" />
+                                        <TextBlock Text="{Binding HostnameOrIp}" FontSize="14" Opacity="0.7" />
+                                        <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                            <materialDesign:Chip Content="{Binding Type}" Margin="0,0,8,0" />
+                                            <TextBlock Text="{Binding CurrentStatus}"
+                                                       Foreground="{Binding CurrentStatus, Converter={StaticResource StatusToColorConverter}}"
+                                                       FontWeight="Bold" />
+                                        </StackPanel>
+                                        <TextBlock Text="{Binding LastCheckTime, StringFormat=最後檢查: {0:yyyy/MM/dd HH:mm:ss}, TargetNullValue=最後檢查: 未檢查}"
+                                                   FontSize="12"
+                                                   Opacity="0.7"
+                                                   Margin="0,8,0,0" />
+                                        <TextBlock Text="{Binding AverageResponseTimeMs, StringFormat=平均回應: {0:N0} ms, TargetNullValue=平均回應: --}"
+                                                   FontSize="12"
+                                                   Opacity="0.7" />
+                                        <ProgressBar Height="4" Margin="0,8,0,0" IsIndeterminate="True">
+                                            <ProgressBar.Style>
+                                                <Style TargetType="ProgressBar">
+                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding CurrentStatus}" Value="{x:Static models:HostStatus.Checking}">
+                                                            <Setter Property="Visibility" Value="Visible" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </ProgressBar.Style>
+                                        </ProgressBar>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Button Content="編輯"
+                                                Command="{Binding DataContext.EditHostCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding}"
+                                                Margin="4" />
+                                        <Button Content="刪除"
+                                                Command="{Binding DataContext.DeleteHostCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding}"
+                                                Margin="4" />
+                                        <Button Content="立即檢查"
+                                                Command="{Binding DataContext.ManualCheckCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding}"
+                                                Margin="4" />
+                                    </StackPanel>
+                                </Grid>
+                            </materialDesign:Card>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                <StackPanel.Style>
+                    <Style TargetType="StackPanel">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Hosts.Count}" Value="0">
+                                <Setter Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </StackPanel.Style>
+                <TextBlock Text="尚無主機" FontSize="20" FontWeight="Bold" Margin="0,0,0,8" />
+                <TextBlock Text="點擊下方按鈕新增第一台主機" Margin="0,0,0,16" />
+                <Button Content="新增主機"
+                        Command="{Binding AddHostCommand}"
+                        Style="{StaticResource MaterialDesignRaisedButton}" />
+            </StackPanel>
+        </Grid>
+    </DockPanel>
+</UserControl>
