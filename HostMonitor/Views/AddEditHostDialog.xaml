@@ -21,12 +21,16 @@
                    Style="{StaticResource MaterialDesignHeadline5TextBlock}"
                    Margin="0,0,0,16" />
 
-        <TextBox materialDesign:HintAssist.Hint="主機名稱*"
+        <TextBox materialDesign:HintAssist.Hint="顯示名稱*"
                  Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
                  Margin="0,0,0,8" />
 
-        <TextBox materialDesign:HintAssist.Hint="主機位址/IP*"
-                 Text="{Binding HostnameOrIp, UpdateSourceTrigger=PropertyChanged}"
+        <TextBox materialDesign:HintAssist.Hint="主機名稱 (hostname)*"
+                 Text="{Binding Hostname, UpdateSourceTrigger=PropertyChanged}"
+                 Margin="0,0,0,8" />
+
+        <TextBox materialDesign:HintAssist.Hint="IP (選填)"
+                 Text="{Binding IpAddress, UpdateSourceTrigger=PropertyChanged}"
                  Margin="0,0,0,8" />
 
         <ComboBox materialDesign:HintAssist.Hint="主機類型"

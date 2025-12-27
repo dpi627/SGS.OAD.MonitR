@@ -23,6 +23,33 @@ public class Host
     public string HostnameOrIp { get; set; } = string.Empty;
 
     /// <summary>
+    /// Gets or sets the hostname.
+    /// </summary>
+    public string Hostname { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the optional IP address.
+    /// </summary>
+    public string? IpAddress { get; set; }
+
+    /// <summary>
+    /// Gets the display address for the host list.
+    /// </summary>
+    public string DisplayAddress
+    {
+        get
+        {
+            var hostname = string.IsNullOrWhiteSpace(Hostname) ? HostnameOrIp : Hostname;
+            if (string.IsNullOrWhiteSpace(IpAddress))
+            {
+                return hostname;
+            }
+
+            return $"{hostname} ({IpAddress})";
+        }
+    }
+
+    /// <summary>
     /// Gets or sets the host type.
     /// </summary>
     public HostType Type { get; set; }

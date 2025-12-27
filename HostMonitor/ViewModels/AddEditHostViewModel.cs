@@ -27,7 +27,11 @@ public partial class AddEditHostViewModel : ObservableObject
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
-    private string hostnameOrIp = string.Empty;
+    private string hostname = string.Empty;
+
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
+    private string ipAddress = string.Empty;
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
@@ -67,7 +71,8 @@ public partial class AddEditHostViewModel : ObservableObject
         IsEditMode = true;
         _editingHostId = host.Id;
         Name = host.Name;
-        HostnameOrIp = host.HostnameOrIp;
+        Hostname = string.IsNullOrWhiteSpace(host.Hostname) ? host.HostnameOrIp : host.Hostname;
+        IpAddress = host.IpAddress ?? string.Empty;
         SelectedHostType = host.Type;
 
         EnablePingMonitor = host.MonitorMethods.Any(m => m.Type == MonitorType.IcmpPing && m.IsEnabled);
@@ -126,11 +131,16 @@ public partial class AddEditHostViewModel : ObservableObject
             return;
         }
 
+        var trimmedHostname = Hostname.Trim();
+        var trimmedIpAddress = string.IsNullOrWhiteSpace(IpAddress) ? null : IpAddress.Trim();
+        var monitorAddress = ResolveMonitorAddress(trimmedHostname, trimmedIpAddress);
         var host = new Host
         {
             Id = _editingHostId ?? Guid.NewGuid(),
             Name = Name.Trim(),
-            HostnameOrIp = HostnameOrIp.Trim(),
+            HostnameOrIp = monitorAddress,
+            Hostname = trimmedHostname,
+            IpAddress = trimmedIpAddress,
             Type = SelectedHostType,
             MonitorMethods = BuildMonitorMethods()
         };
@@ -145,6 +155,7 @@ public partial class AddEditHostViewModel : ObservableObject
         }
 
         WeakReferenceMessenger.Default.Send(new HostChangedMessage(host, IsEditMode));
+        WeakReferenceMessenger.Default.Send(new CloseDialogMessage("RootDialog"));
         Reset();
     }
 
@@ -156,14 +167,23 @@ public partial class AddEditHostViewModel : ObservableObject
 
     private bool CanSave()
     {
-        if (string.IsNullOrWhiteSpace(Name) || string.IsNullOrWhiteSpace(HostnameOrIp))
+        if (string.IsNullOrWhiteSpace(Name) || string.IsNullOrWhiteSpace(Hostname))
         {
             return false;
         }
 
-        if (!IsValidHost(HostnameOrIp))
+        var hostnameValid = IsValidHostname(Hostname);
+        if (!hostnameValid)
         {
-            return false;
+            if (string.IsNullOrWhiteSpace(IpAddress))
+            {
+                return false;
+            }
+
+            if (!IsValidIpAddress(IpAddress))
+            {
+                return false;
+            }
         }
 
         if (!EnablePingMonitor && !EnableTcpMonitor)
@@ -187,18 +207,27 @@ public partial class AddEditHostViewModel : ObservableObject
         return true;
     }
 
-    private static bool IsValidHost(string value)
+    private static bool IsValidHostname(string value)
     {
         var trimmed = value.Trim();
-        if (IPAddress.TryParse(trimmed, out _))
+        var hostType = Uri.CheckHostName(trimmed);
+        return hostType == UriHostNameType.Dns;
+    }
+
+    private static bool IsValidIpAddress(string value)
+    {
+        var trimmed = value.Trim();
+        return IPAddress.TryParse(trimmed, out _);
+    }
+
+    private static string ResolveMonitorAddress(string hostname, string? ipAddress)
+    {
+        if (IsValidHostname(hostname))
         {
-            return true;
+            return hostname;
         }
 
-        var hostType = Uri.CheckHostName(trimmed);
-        return hostType == UriHostNameType.Dns
-            || hostType == UriHostNameType.IPv4
-            || hostType == UriHostNameType.IPv6;
+        return ipAddress ?? hostname;
     }
 
     private List<MonitorMethod> BuildMonitorMethods()
@@ -229,7 +258,8 @@ public partial class AddEditHostViewModel : ObservableObject
     private void Reset()
     {
         Name = string.Empty;
-        HostnameOrIp = string.Empty;
+        Hostname = string.Empty;
+        IpAddress = string.Empty;
         SelectedHostType = HostType.WindowsPC;
         EnablePingMonitor = true;
         EnableTcpMonitor = false;

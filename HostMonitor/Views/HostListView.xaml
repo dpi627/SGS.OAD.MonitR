@@ -31,7 +31,7 @@
 
                                     <StackPanel Grid.Column="0">
                                         <TextBlock Text="{Binding Name}" FontSize="18" FontWeight="Bold" />
-                                        <TextBlock Text="{Binding HostnameOrIp}" FontSize="14" Opacity="0.7" />
+                                        <TextBlock Text="{Binding DisplayAddress}" FontSize="14" Opacity="0.7" />
                                         <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
                                             <materialDesign:Chip Content="{Binding Type}" Margin="0,0,8,0" />
                                             <TextBlock Text="{Binding CurrentStatus}"

@@ -56,6 +56,8 @@ public class HostDataService : IHostDataService
 
         existing.Name = host.Name;
         existing.HostnameOrIp = host.HostnameOrIp;
+        existing.Hostname = host.Hostname;
+        existing.IpAddress = host.IpAddress;
         existing.Type = host.Type;
         existing.MonitorMethods = host.MonitorMethods;
         existing.CurrentStatus = host.CurrentStatus;

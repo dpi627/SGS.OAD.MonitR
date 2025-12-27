@@ -31,6 +31,11 @@ public partial class MainWindow : Window
         {
             await ShowDeleteConfirmAsync(message);
         });
+
+        WeakReferenceMessenger.Default.Register<CloseDialogMessage>(this, (_, message) =>
+        {
+            DialogHost.Close(message.DialogIdentifier);
+        });
     }
 
     /// <inheritdoc />
