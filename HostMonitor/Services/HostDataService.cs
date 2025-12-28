@@ -1,4 +1,6 @@
 using System.Collections.ObjectModel;
+using System.IO;
+using System.Text.Json;
 using HostMonitor.Models;
 using HostMonitor.Models.Enums;
 using HostMonitor.Services.Interfaces;
@@ -6,19 +8,31 @@ using HostMonitor.Services.Interfaces;
 namespace HostMonitor.Services;
 
 /// <summary>
-/// Provides in-memory host storage.
+/// Provides host storage with local persistence.
 /// </summary>
 public class HostDataService : IHostDataService
 {
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        WriteIndented = true
+    };
+
     private readonly ObservableCollection<Host> _hosts;
+    private readonly string _storagePath;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="HostDataService"/> class.
     /// </summary>
     public HostDataService()
     {
-        _hosts = new ObservableCollection<Host>();
+        _storagePath = GetStoragePath();
+        _hosts = LoadHosts();
+        var hasStoredHosts = _hosts.Count > 0;
         AddDefaultHost();
+        if (!hasStoredHosts && _hosts.Count > 0)
+        {
+            SaveHosts();
+        }
     }
 
     /// <inheritdoc />
@@ -45,6 +59,7 @@ public class HostDataService : IHostDataService
         }
 
         _hosts.Add(host);
+        SaveHosts();
     }
 
     /// <inheritdoc />
@@ -61,11 +76,12 @@ public class HostDataService : IHostDataService
         existing.Hostname = host.Hostname;
         existing.IpAddress = host.IpAddress;
         existing.Type = host.Type;
-        existing.MonitorMethods = host.MonitorMethods;
+        existing.MonitorMethods = host.MonitorMethods ?? new List<MonitorMethod>();
         existing.CurrentStatus = host.CurrentStatus;
         existing.LastCheckTime = host.LastCheckTime;
         existing.AverageResponseTimeMs = host.AverageResponseTimeMs;
         existing.LastErrorMessage = host.LastErrorMessage;
+        SaveHosts();
     }
 
     /// <inheritdoc />
@@ -78,6 +94,7 @@ public class HostDataService : IHostDataService
         }
 
         _hosts.Remove(existing);
+        SaveHosts();
     }
 
     private void AddDefaultHost()
@@ -106,5 +123,99 @@ public class HostDataService : IHostDataService
         };
 
         _hosts.Add(localhost);
+    }
+
+    private ObservableCollection<Host> LoadHosts()
+    {
+        if (!File.Exists(_storagePath))
+        {
+            return new ObservableCollection<Host>();
+        }
+
+        try
+        {
+            var json = File.ReadAllText(_storagePath);
+            var snapshots = JsonSerializer.Deserialize<List<HostSnapshot>>(json, JsonOptions)
+                ?? new List<HostSnapshot>();
+            var hosts = snapshots.Select(MapSnapshotToHost).ToList();
+            return new ObservableCollection<Host>(hosts);
+        }
+        catch
+        {
+            return new ObservableCollection<Host>();
+        }
+    }
+
+    private void SaveHosts()
+    {
+        try
+        {
+            var snapshots = _hosts.Select(MapHostToSnapshot).ToList();
+            var json = JsonSerializer.Serialize(snapshots, JsonOptions);
+            File.WriteAllText(_storagePath, json);
+        }
+        catch
+        {
+        }
+    }
+
+    private static Host MapSnapshotToHost(HostSnapshot snapshot)
+    {
+        var hostname = snapshot.Hostname ?? string.Empty;
+        var hostnameOrIp = snapshot.HostnameOrIp ?? string.Empty;
+        var resolvedHostname = string.IsNullOrWhiteSpace(hostname) ? hostnameOrIp : hostname;
+        var resolvedAddress = string.IsNullOrWhiteSpace(hostnameOrIp) ? resolvedHostname : hostnameOrIp;
+
+        return new Host
+        {
+            Id = snapshot.Id == Guid.Empty ? Guid.NewGuid() : snapshot.Id,
+            Name = snapshot.Name ?? string.Empty,
+            Hostname = resolvedHostname,
+            HostnameOrIp = resolvedAddress,
+            IpAddress = snapshot.IpAddress,
+            Type = snapshot.Type,
+            MonitorMethods = snapshot.MonitorMethods ?? new List<MonitorMethod>(),
+            CurrentStatus = HostStatus.Unknown
+        };
+    }
+
+    private static HostSnapshot MapHostToSnapshot(Host host)
+    {
+        return new HostSnapshot
+        {
+            Id = host.Id,
+            Name = host.Name,
+            Hostname = host.Hostname,
+            HostnameOrIp = host.HostnameOrIp,
+            IpAddress = host.IpAddress,
+            Type = host.Type,
+            MonitorMethods = host.MonitorMethods ?? new List<MonitorMethod>()
+        };
+    }
+
+    private static string GetStoragePath()
+    {
+        var folder = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "HostMonitor");
+        Directory.CreateDirectory(folder);
+        return Path.Combine(folder, "hosts.json");
+    }
+
+    private sealed class HostSnapshot
+    {
+        public Guid Id { get; set; }
+
+        public string? Name { get; set; }
+
+        public string? HostnameOrIp { get; set; }
+
+        public string? Hostname { get; set; }
+
+        public string? IpAddress { get; set; }
+
+        public HostType Type { get; set; }
+
+        public List<MonitorMethod>? MonitorMethods { get; set; }
     }
 }
