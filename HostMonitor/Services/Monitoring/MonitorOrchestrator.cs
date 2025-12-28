@@ -24,6 +24,11 @@ public class MonitorOrchestrator
     }
 
     /// <summary>
+    /// Gets the number of registered monitor services.
+    /// </summary>
+    public int ServiceCount => _serviceMap.Count;
+
+    /// <summary>
     /// Raised when a monitor result is received.
     /// </summary>
     public event EventHandler<MonitorResult>? MonitorResultReceived;

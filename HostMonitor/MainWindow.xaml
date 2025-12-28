@@ -30,6 +30,77 @@
                 </DockPanel>
             </materialDesign:ColorZone>
 
+            <Border DockPanel.Dock="Bottom"
+                    Background="#333333"
+                    Padding="12,4"
+                    TextElement.Foreground="White">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0"
+                               Text="{Binding AppVersion, StringFormat=版本: {0}}"
+                               Margin="0,0,16,0" />
+                    <TextBlock Grid.Column="1"
+                               Text="{Binding MonitorServiceCount, StringFormat=監控服務數量: {0}}"
+                               Margin="0,0,16,0" />
+                    <TextBlock Grid.Column="2"
+                               Text="{Binding UserName, StringFormat=使用者: {0}}"
+                               Margin="0,0,16,0" />
+                    <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="監控:" Margin="0,0,6,0" />
+                        <Ellipse Width="10" Height="10" Margin="0,0,6,0" VerticalAlignment="Center">
+                            <Ellipse.Style>
+                                <Style TargetType="Ellipse">
+                                    <Setter Property="Fill">
+                                        <Setter.Value>
+                                            <SolidColorBrush Color="#777777" />
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsMonitoring}" Value="True">
+                                            <Setter Property="Fill">
+                                                <Setter.Value>
+                                                    <SolidColorBrush Color="White" />
+                                                </Setter.Value>
+                                            </Setter>
+                                            <DataTrigger.EnterActions>
+                                                <BeginStoryboard x:Name="MonitoringBlink">
+                                                    <Storyboard AutoReverse="True" RepeatBehavior="Forever">
+                                                        <ColorAnimation Storyboard.TargetProperty="(Shape.Fill).(SolidColorBrush.Color)"
+                                                                        To="Black"
+                                                                        Duration="0:0:0.6" />
+                                                    </Storyboard>
+                                                </BeginStoryboard>
+                                            </DataTrigger.EnterActions>
+                                            <DataTrigger.ExitActions>
+                                                <StopStoryboard BeginStoryboardName="MonitoringBlink" />
+                                            </DataTrigger.ExitActions>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Ellipse.Style>
+                        </Ellipse>
+                        <TextBlock>
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Text" Value="未監控" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsMonitoring}" Value="True">
+                                            <Setter Property="Text" Value="監控中" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
             <materialDesign:Snackbar DockPanel.Dock="Bottom"
                                      MessageQueue="{Binding SnackbarMessageQueue}"
                                      Margin="16" />

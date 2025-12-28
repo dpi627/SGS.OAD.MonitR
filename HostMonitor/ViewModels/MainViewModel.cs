@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -31,6 +32,21 @@ public partial class MainViewModel : ObservableObject
     private bool isMonitoring;
 
     /// <summary>
+    /// Gets the application version string.
+    /// </summary>
+    public string AppVersion { get; }
+
+    /// <summary>
+    /// Gets the registered monitor service count.
+    /// </summary>
+    public int MonitorServiceCount { get; }
+
+    /// <summary>
+    /// Gets the current user name.
+    /// </summary>
+    public string UserName { get; }
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="MainViewModel"/> class.
     /// </summary>
     public MainViewModel(
@@ -42,12 +58,21 @@ public partial class MainViewModel : ObservableObject
         _orchestrator = orchestrator;
         _notificationService = notificationService;
         SnackbarMessageQueue = notificationService.MessageQueue;
+        AppVersion = GetAppVersion();
+        MonitorServiceCount = _orchestrator.ServiceCount;
+        UserName = Environment.UserName;
     }
 
     /// <summary>
     /// Gets the snackbar message queue.
     /// </summary>
     public ISnackbarMessageQueue SnackbarMessageQueue { get; }
+
+    private static string GetAppVersion()
+    {
+        var version = Assembly.GetEntryAssembly()?.GetName().Version;
+        return version is null ? "1.0.0.0" : version.ToString();
+    }
 
     [RelayCommand]
     private async Task StartMonitoringAsync()
