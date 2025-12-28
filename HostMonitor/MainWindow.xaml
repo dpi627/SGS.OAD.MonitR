@@ -26,6 +26,22 @@
                                 Command="{Binding StopMonitoringCommand}"
                                 IsEnabled="{Binding IsMonitoring}"
                                 Margin="8,0" />
+                        <ToggleButton IsChecked="{Binding IsDarkTheme}"
+                                      Margin="8,0"
+                                      ToolTip="切換明暗主題">
+                            <TextBlock>
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Text" Value="亮色" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsDarkTheme}" Value="True">
+                                                <Setter Property="Text" Value="暗色" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </ToggleButton>
                     </StackPanel>
                 </DockPanel>
             </materialDesign:ColorZone>
