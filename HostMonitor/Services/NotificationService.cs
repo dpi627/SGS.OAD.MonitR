@@ -1,3 +1,5 @@
+using System;
+using WpfApplication = System.Windows.Application;
 using MaterialDesignThemes.Wpf;
 
 namespace HostMonitor.Services;
@@ -12,7 +14,10 @@ public sealed class NotificationService
     /// </summary>
     public NotificationService()
     {
-        MessageQueue = new SnackbarMessageQueue(TimeSpan.FromSeconds(3));
+        var dispatcher = WpfApplication.Current?.Dispatcher;
+        MessageQueue = dispatcher is null
+            ? new SnackbarMessageQueue(TimeSpan.FromSeconds(3))
+            : new SnackbarMessageQueue(TimeSpan.FromSeconds(3), dispatcher);
     }
 
     /// <summary>
@@ -51,7 +56,20 @@ public sealed class NotificationService
 
     private void Enqueue(NotificationKind kind, string message)
     {
-        MessageQueue.Enqueue(message);
-        NotificationRaised?.Invoke(this, new NotificationEventArgs(kind, message));
+        void EnqueueCore()
+        {
+            MessageQueue.Enqueue(message);
+            NotificationRaised?.Invoke(this, new NotificationEventArgs(kind, message));
+        }
+
+        var dispatcher = WpfApplication.Current?.Dispatcher;
+        if (dispatcher is null || dispatcher.CheckAccess())
+        {
+            EnqueueCore();
+        }
+        else
+        {
+            dispatcher.BeginInvoke((Action)EnqueueCore);
+        }
     }
 }

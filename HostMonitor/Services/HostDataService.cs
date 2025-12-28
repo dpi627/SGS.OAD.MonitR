@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using HostMonitor.Models;
+using HostMonitor.Models.Enums;
 using HostMonitor.Services.Interfaces;
 
 namespace HostMonitor.Services;
@@ -17,6 +18,7 @@ public class HostDataService : IHostDataService
     public HostDataService()
     {
         _hosts = new ObservableCollection<Host>();
+        AddDefaultHost();
     }
 
     /// <inheritdoc />
@@ -76,5 +78,33 @@ public class HostDataService : IHostDataService
         }
 
         _hosts.Remove(existing);
+    }
+
+    private void AddDefaultHost()
+    {
+        if (_hosts.Count > 0)
+        {
+            return;
+        }
+
+        var localhost = new Host
+        {
+            Id = Guid.NewGuid(),
+            Name = "本機電腦",
+            Hostname = "localhost",
+            HostnameOrIp = "localhost",
+            IpAddress = "127.0.0.1",
+            Type = HostType.WindowsPC,
+            MonitorMethods = new List<MonitorMethod>
+            {
+                new MonitorMethod
+                {
+                    Type = MonitorType.IcmpPing,
+                    IsEnabled = true
+                }
+            }
+        };
+
+        _hosts.Add(localhost);
     }
 }
