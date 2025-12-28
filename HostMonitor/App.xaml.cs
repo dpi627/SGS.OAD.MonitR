@@ -121,15 +121,9 @@ public partial class App : System.Windows.Application
 
     private void OnMainWindowClosing(object? sender, CancelEventArgs e)
     {
-        if (_isExiting)
+        if (!_isExiting)
         {
-            return;
-        }
-
-        e.Cancel = true;
-        if (sender is Window window)
-        {
-            window.Hide();
+            _isExiting = true;
         }
     }
 
