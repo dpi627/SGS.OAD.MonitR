@@ -163,6 +163,7 @@ public partial class AddEditHostViewModel : ObservableObject
     private void Cancel()
     {
         Reset();
+        WeakReferenceMessenger.Default.Send(new CloseDialogMessage("RootDialog"));
     }
 
     private bool CanSave()

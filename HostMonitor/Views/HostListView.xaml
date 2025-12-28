@@ -42,7 +42,7 @@
                                                    FontSize="12"
                                                    Opacity="0.7"
                                                    Margin="0,8,0,0" />
-                                        <TextBlock Text="{Binding AverageResponseTimeMs, StringFormat=平均回應: {0:N0} ms, TargetNullValue=平均回應: --}"
+                                        <TextBlock Text="{Binding AverageResponseTimeMs, StringFormat=平均回應: {0:N2} ms, TargetNullValue=平均回應: --}"
                                                    FontSize="12"
                                                    Opacity="0.7" />
                                         <ProgressBar Height="4" Margin="0,8,0,0" IsIndeterminate="True">
