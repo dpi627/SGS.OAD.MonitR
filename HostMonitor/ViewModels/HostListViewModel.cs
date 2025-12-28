@@ -20,7 +20,7 @@ namespace HostMonitor.ViewModels;
 /// </summary>
 public partial class HostListViewModel : ObservableObject
 {
-    private const int MaxCommandLogEntries = 20;
+    private const int MaxCommandLogEntries = 40;
 
     private readonly IHostDataService _hostDataService;
     private readonly AddEditHostViewModel _addEditHostViewModel;
@@ -53,6 +53,7 @@ public partial class HostListViewModel : ObservableObject
         _notificationService = notificationService;
         Hosts = _hostDataService.GetAllHosts();
         _orchestrator.MonitorCommandIssued += OnMonitorCommandIssued;
+        _orchestrator.MonitorResultReceived += OnMonitorResultReceived;
 
         WeakReferenceMessenger.Default.Register<HostChangedMessage>(this, (_, message) =>
         {
@@ -83,6 +84,19 @@ public partial class HostListViewModel : ObservableObject
         }
     }
 
+    private void OnMonitorResultReceived(object? sender, MonitorResult result)
+    {
+        var dispatcher = WpfApplication.Current?.Dispatcher;
+        if (dispatcher is null || dispatcher.CheckAccess())
+        {
+            AppendResponse(result);
+        }
+        else
+        {
+            dispatcher.BeginInvoke(() => AppendResponse(result));
+        }
+    }
+
     private void AppendCommand(MonitorCommandEventArgs args)
     {
         var host = Hosts.FirstOrDefault(item => item.Id == args.HostId);
@@ -92,6 +106,27 @@ public partial class HostListViewModel : ObservableObject
         }
 
         var line = $"[{args.Timestamp:HH:mm:ss}] {args.Command}";
+        AppendLine(host, line);
+    }
+
+    private void AppendResponse(MonitorResult result)
+    {
+        var host = Hosts.FirstOrDefault(item => item.Id == result.HostId);
+        if (host is null)
+        {
+            return;
+        }
+
+        var timestamp = result.CheckTime == default ? DateTime.Now : result.CheckTime;
+        var status = result.IsSuccess
+            ? $"OK {result.ResponseTimeMs:N2} ms"
+            : $"FAIL {result.ErrorMessage ?? "Unknown error"}";
+        var line = $"[{timestamp:HH:mm:ss}] <- {status}";
+        AppendLine(host, line);
+    }
+
+    private static void AppendLine(Host host, string line)
+    {
         host.CommandLog.Add(line);
         while (host.CommandLog.Count > MaxCommandLogEntries)
         {
@@ -154,6 +189,10 @@ public partial class HostListViewModel : ObservableObject
         {
             var results = await _orchestrator.CheckHostAsync(host);
             ApplyResults(host, results);
+            foreach (var result in results)
+            {
+                AppendResponse(result);
+            }
         }
         catch (Exception ex)
         {

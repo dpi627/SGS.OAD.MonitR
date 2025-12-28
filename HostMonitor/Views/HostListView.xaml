@@ -4,6 +4,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:behaviors="clr-namespace:HostMonitor.Behaviors"
              xmlns:models="clr-namespace:HostMonitor.Models.Enums"
              mc:Ignorable="d">
     <DockPanel Margin="16">
@@ -44,18 +45,30 @@
                                                 BorderBrush="#22000000"
                                                 BorderThickness="1"
                                                 CornerRadius="4">
-                                            <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="90">
-                                                <ItemsControl ItemsSource="{Binding CommandLog}">
-                                                    <ItemsControl.ItemTemplate>
-                                                        <DataTemplate>
-                                                            <TextBlock Text="{Binding}"
-                                                                       FontFamily="Consolas"
-                                                                       FontSize="11"
-                                                                       TextWrapping="Wrap" />
-                                                        </DataTemplate>
-                                                    </ItemsControl.ItemTemplate>
-                                                </ItemsControl>
-                                            </ScrollViewer>
+                                            <ListBox ItemsSource="{Binding CommandLog}"
+                                                     MaxHeight="90"
+                                                     BorderThickness="0"
+                                                     Background="Transparent"
+                                                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                                     ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                                     behaviors:AutoScrollBehavior.Enable="True">
+                                                <ListBox.ItemContainerStyle>
+                                                    <Style TargetType="ListBoxItem">
+                                                        <Setter Property="Focusable" Value="False" />
+                                                        <Setter Property="IsHitTestVisible" Value="False" />
+                                                        <Setter Property="Padding" Value="0" />
+                                                        <Setter Property="Margin" Value="0" />
+                                                    </Style>
+                                                </ListBox.ItemContainerStyle>
+                                                <ListBox.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <TextBlock Text="{Binding}"
+                                                                   FontFamily="Consolas"
+                                                                   FontSize="11"
+                                                                   TextWrapping="Wrap" />
+                                                    </DataTemplate>
+                                                </ListBox.ItemTemplate>
+                                            </ListBox>
                                         </Border>
                                         <TextBlock Text="{Binding LastCheckTime, StringFormat=最後檢查: {0:yyyy/MM/dd HH:mm:ss}, TargetNullValue=最後檢查: 未檢查}"
                                                    FontSize="12"
