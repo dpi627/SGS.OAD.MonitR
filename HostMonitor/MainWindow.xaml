@@ -8,6 +8,8 @@
         Title="HostMonitor"
         Width="1200"
         Height="800"
+        WindowStartupLocation="CenterScreen"
+        WindowState="Maximized"
         Background="{DynamicResource MaterialDesignPaper}"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}">
     <materialDesign:DialogHost Identifier="RootDialog">
