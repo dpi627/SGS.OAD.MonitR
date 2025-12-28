@@ -21,7 +21,6 @@ public partial class MainViewModel : ObservableObject
 {
     private readonly MonitorOrchestrator _orchestrator;
     private readonly NotificationService _notificationService;
-    private readonly ThemeService _themeService;
     private readonly Dictionary<Guid, Dictionary<MonitorMethodKey, MonitorResult>> _latestResults = new();
     private CancellationTokenSource? _monitoringCts;
 
@@ -31,35 +30,24 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private bool isMonitoring;
 
-    [ObservableProperty]
-    private bool isDarkTheme;
-
     /// <summary>
     /// Initializes a new instance of the <see cref="MainViewModel"/> class.
     /// </summary>
     public MainViewModel(
         HostListViewModel hostListViewModel,
         MonitorOrchestrator orchestrator,
-        NotificationService notificationService,
-        ThemeService themeService)
+        NotificationService notificationService)
     {
         HostListViewModel = hostListViewModel;
         _orchestrator = orchestrator;
         _notificationService = notificationService;
-        _themeService = themeService;
         SnackbarMessageQueue = notificationService.MessageQueue;
-        IsDarkTheme = _themeService.IsDarkTheme;
     }
 
     /// <summary>
     /// Gets the snackbar message queue.
     /// </summary>
     public ISnackbarMessageQueue SnackbarMessageQueue { get; }
-
-    partial void OnIsDarkThemeChanged(bool value)
-    {
-        _themeService.SetTheme(value);
-    }
 
     [RelayCommand]
     private async Task StartMonitoringAsync()

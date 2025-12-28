@@ -29,7 +29,6 @@ public partial class App : System.Windows.Application
         services.AddSingleton<IHostDataService, HostDataService>();
         services.AddSingleton<MonitorOrchestrator>();
         services.AddSingleton<NotificationService>();
-        services.AddSingleton<ThemeService>();
         services.AddTransient<IMonitorService, PingMonitorService>();
         services.AddTransient<IMonitorService, TcpPortMonitorService>();
 
@@ -40,9 +39,6 @@ public partial class App : System.Windows.Application
         services.AddTransient<MainWindow>();
 
         _serviceProvider = services.BuildServiceProvider();
-
-        _serviceProvider.GetRequiredService<ThemeService>()
-            .InitializeWithSystemTheme();
 
         var mainWindow = _serviceProvider.GetRequiredService<MainWindow>();
         mainWindow.StateChanged += OnMainWindowStateChanged;
