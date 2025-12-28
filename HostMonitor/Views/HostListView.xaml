@@ -38,6 +38,25 @@
                                                        Foreground="{Binding CurrentStatus, Converter={StaticResource StatusToColorConverter}}"
                                                        FontWeight="Bold" />
                                         </StackPanel>
+                                        <Border Margin="0,8,0,0"
+                                                Padding="8"
+                                                Background="#0A000000"
+                                                BorderBrush="#22000000"
+                                                BorderThickness="1"
+                                                CornerRadius="4">
+                                            <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="90">
+                                                <ItemsControl ItemsSource="{Binding CommandLog}">
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <TextBlock Text="{Binding}"
+                                                                       FontFamily="Consolas"
+                                                                       FontSize="11"
+                                                                       TextWrapping="Wrap" />
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                            </ScrollViewer>
+                                        </Border>
                                         <TextBlock Text="{Binding LastCheckTime, StringFormat=最後檢查: {0:yyyy/MM/dd HH:mm:ss}, TargetNullValue=最後檢查: 未檢查}"
                                                    FontSize="12"
                                                    Opacity="0.7"

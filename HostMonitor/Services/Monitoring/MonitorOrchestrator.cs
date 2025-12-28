@@ -29,6 +29,11 @@ public class MonitorOrchestrator
     public event EventHandler<MonitorResult>? MonitorResultReceived;
 
     /// <summary>
+    /// Raised when a monitoring command is issued.
+    /// </summary>
+    public event EventHandler<MonitorCommandEventArgs>? MonitorCommandIssued;
+
+    /// <summary>
     /// Starts monitoring a host.
     /// </summary>
     public Task StartMonitoringAsync(Host host, CancellationToken cancellationToken = default)
@@ -74,8 +79,7 @@ public class MonitorOrchestrator
         var tasks = new List<Task<MonitorResult>>();
         foreach (var method in host.MonitorMethods.Where(m => m.IsEnabled))
         {
-            var service = GetMonitorService(method.Type);
-            tasks.Add(service.CheckAsync(host, method, cancellationToken));
+            tasks.Add(ExecuteCheckAsync(host, method, cancellationToken));
         }
 
         var results = await Task.WhenAll(tasks);
@@ -89,11 +93,13 @@ public class MonitorOrchestrator
 
         try
         {
-            await ExecuteCheckAsync(host, method, cancellationToken);
+            var initialResult = await ExecuteCheckAsync(host, method, cancellationToken);
+            MonitorResultReceived?.Invoke(this, initialResult);
 
             while (await timer.WaitForNextTickAsync(cancellationToken))
             {
-                await ExecuteCheckAsync(host, method, cancellationToken);
+                var result = await ExecuteCheckAsync(host, method, cancellationToken);
+                MonitorResultReceived?.Invoke(this, result);
             }
         }
         catch (OperationCanceledException)
@@ -101,11 +107,24 @@ public class MonitorOrchestrator
         }
     }
 
-    private async Task ExecuteCheckAsync(Host host, MonitorMethod method, CancellationToken cancellationToken)
+    private async Task<MonitorResult> ExecuteCheckAsync(Host host, MonitorMethod method, CancellationToken cancellationToken)
     {
+        var command = BuildCommandText(host, method);
+        MonitorCommandIssued?.Invoke(this, new MonitorCommandEventArgs(host.Id, command, DateTime.Now));
+
         var service = GetMonitorService(method.Type);
-        var result = await service.CheckAsync(host, method, cancellationToken);
-        MonitorResultReceived?.Invoke(this, result);
+        return await service.CheckAsync(host, method, cancellationToken);
+    }
+
+    private static string BuildCommandText(Host host, MonitorMethod method)
+    {
+        var target = host.HostnameOrIp;
+        return method.Type switch
+        {
+            MonitorType.IcmpPing => $"PING {target} timeout={method.TimeoutMs}ms",
+            MonitorType.TcpPort => $"TCP {target}:{method.Port} timeout={method.TimeoutMs}ms",
+            _ => $"{method.Type} {target}"
+        };
     }
 
     private IMonitorService GetMonitorService(MonitorType type)

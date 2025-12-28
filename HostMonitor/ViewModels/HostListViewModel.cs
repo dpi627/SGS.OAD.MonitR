@@ -11,6 +11,7 @@ using HostMonitor.Models.Enums;
 using HostMonitor.Services;
 using HostMonitor.Services.Interfaces;
 using HostMonitor.Services.Monitoring;
+using WpfApplication = System.Windows.Application;
 
 namespace HostMonitor.ViewModels;
 
@@ -19,6 +20,8 @@ namespace HostMonitor.ViewModels;
 /// </summary>
 public partial class HostListViewModel : ObservableObject
 {
+    private const int MaxCommandLogEntries = 20;
+
     private readonly IHostDataService _hostDataService;
     private readonly AddEditHostViewModel _addEditHostViewModel;
     private readonly MonitorOrchestrator _orchestrator;
@@ -49,6 +52,7 @@ public partial class HostListViewModel : ObservableObject
         _orchestrator = orchestrator;
         _notificationService = notificationService;
         Hosts = _hostDataService.GetAllHosts();
+        _orchestrator.MonitorCommandIssued += OnMonitorCommandIssued;
 
         WeakReferenceMessenger.Default.Register<HostChangedMessage>(this, (_, message) =>
         {
@@ -64,6 +68,35 @@ public partial class HostListViewModel : ObservableObject
             SelectedHost = message.Host;
             _notificationService.ShowSuccess($"已新增主機: {message.Host.Name}");
         });
+    }
+
+    private void OnMonitorCommandIssued(object? sender, MonitorCommandEventArgs args)
+    {
+        var dispatcher = WpfApplication.Current?.Dispatcher;
+        if (dispatcher is null || dispatcher.CheckAccess())
+        {
+            AppendCommand(args);
+        }
+        else
+        {
+            dispatcher.BeginInvoke(() => AppendCommand(args));
+        }
+    }
+
+    private void AppendCommand(MonitorCommandEventArgs args)
+    {
+        var host = Hosts.FirstOrDefault(item => item.Id == args.HostId);
+        if (host is null)
+        {
+            return;
+        }
+
+        var line = $"[{args.Timestamp:HH:mm:ss}] {args.Command}";
+        host.CommandLog.Add(line);
+        while (host.CommandLog.Count > MaxCommandLogEntries)
+        {
+            host.CommandLog.RemoveAt(0);
+        }
     }
 
     [RelayCommand]

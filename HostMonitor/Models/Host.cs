@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using HostMonitor.Models.Enums;
 
@@ -19,6 +20,7 @@ public class Host : ObservableObject
     private DateTime? lastCheckTime;
     private double? averageResponseTimeMs;
     private string? lastErrorMessage;
+    private ObservableCollection<string> commandLog = new();
 
     /// <summary>
     /// Gets or sets the host identifier.
@@ -153,4 +155,9 @@ public class Host : ObservableObject
         get => lastErrorMessage;
         set => SetProperty(ref lastErrorMessage, value);
     }
+
+    /// <summary>
+    /// Gets the recent command log entries.
+    /// </summary>
+    public ObservableCollection<string> CommandLog => commandLog;
 }
