@@ -89,16 +89,23 @@ public class MonitorOrchestrator
 
         try
         {
+            await ExecuteCheckAsync(host, method, cancellationToken);
+
             while (await timer.WaitForNextTickAsync(cancellationToken))
             {
-                var service = GetMonitorService(method.Type);
-                var result = await service.CheckAsync(host, method, cancellationToken);
-                MonitorResultReceived?.Invoke(this, result);
+                await ExecuteCheckAsync(host, method, cancellationToken);
             }
         }
         catch (OperationCanceledException)
         {
         }
+    }
+
+    private async Task ExecuteCheckAsync(Host host, MonitorMethod method, CancellationToken cancellationToken)
+    {
+        var service = GetMonitorService(method.Type);
+        var result = await service.CheckAsync(host, method, cancellationToken);
+        MonitorResultReceived?.Invoke(this, result);
     }
 
     private IMonitorService GetMonitorService(MonitorType type)
