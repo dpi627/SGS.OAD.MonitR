@@ -20,7 +20,7 @@ namespace HostMonitor.ViewModels;
 /// </summary>
 public partial class HostListViewModel : ObservableObject
 {
-    private const int MaxCommandLogEntries = 40;
+    private const int MaxCommandLogEntries = 200;
 
     private readonly IHostDataService _hostDataService;
     private readonly AddEditHostViewModel _addEditHostViewModel;
