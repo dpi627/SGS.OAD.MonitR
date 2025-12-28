@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -37,9 +38,10 @@ public partial class MainViewModel : ObservableObject
     public string AppVersion { get; }
 
     /// <summary>
-    /// Gets the registered monitor service count.
+    /// Gets the monitored host count.
     /// </summary>
-    public int MonitorServiceCount { get; }
+    [ObservableProperty]
+    private int monitorHostCount;
 
     /// <summary>
     /// Gets the current user name.
@@ -59,14 +61,20 @@ public partial class MainViewModel : ObservableObject
         _notificationService = notificationService;
         SnackbarMessageQueue = notificationService.MessageQueue;
         AppVersion = GetAppVersion();
-        MonitorServiceCount = _orchestrator.ServiceCount;
         UserName = Environment.UserName;
+        MonitorHostCount = HostListViewModel.Hosts.Count;
+        HostListViewModel.Hosts.CollectionChanged += OnHostsCollectionChanged;
     }
 
     /// <summary>
     /// Gets the snackbar message queue.
     /// </summary>
     public ISnackbarMessageQueue SnackbarMessageQueue { get; }
+
+    private void OnHostsCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        MonitorHostCount = HostListViewModel.Hosts.Count;
+    }
 
     private static string GetAppVersion()
     {

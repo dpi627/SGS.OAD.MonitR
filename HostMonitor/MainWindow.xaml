@@ -46,7 +46,7 @@
                                Text="{Binding AppVersion, StringFormat=版本: {0}}"
                                Margin="0,0,16,0" />
                     <TextBlock Grid.Column="1"
-                               Text="{Binding MonitorServiceCount, StringFormat=監控服務數量: {0}}"
+                               Text="{Binding MonitorHostCount, StringFormat=監控主機數量: {0}}"
                                Margin="0,0,16,0" />
                     <TextBlock Grid.Column="2"
                                Text="{Binding UserName, StringFormat=使用者: {0}}"
