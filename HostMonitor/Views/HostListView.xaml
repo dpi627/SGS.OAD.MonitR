@@ -26,57 +26,31 @@
                             <materialDesign:Card Margin="0,0,0,8" Padding="16">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="2*" MinWidth="200" />
+                                        <ColumnDefinition Width="3*" MinWidth="250" />
+                                        <ColumnDefinition Width="2*" MinWidth="150" />
                                         <ColumnDefinition Width="Auto" />
                                     </Grid.ColumnDefinitions>
 
-                                    <StackPanel Grid.Column="0">
+                                    <!-- 第一欄：主機資訊 -->
+                                    <StackPanel Grid.Column="0" Margin="0,0,16,0">
                                         <TextBlock Text="{Binding Name}" FontSize="18" FontWeight="Bold" />
-                                        <TextBlock Text="{Binding DisplayAddress}" FontSize="14" Opacity="0.7" />
+                                        <TextBlock Text="{Binding DisplayAddress}" FontSize="14" Opacity="0.7" Margin="0,4,0,0" />
                                         <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
                                             <materialDesign:Chip Content="{Binding Type}" Margin="0,0,8,0" />
                                             <TextBlock Text="{Binding CurrentStatus}"
                                                        Foreground="{Binding CurrentStatus, Converter={StaticResource StatusToColorConverter}}"
-                                                       FontWeight="Bold" />
+                                                       FontWeight="Bold"
+                                                       VerticalAlignment="Center" />
                                         </StackPanel>
-                                        <Border Margin="0,8,0,0"
-                                                Padding="8"
-                                                Background="#0A000000"
-                                                BorderBrush="#22000000"
-                                                BorderThickness="1"
-                                                CornerRadius="4">
-                                            <ListBox ItemsSource="{Binding CommandLog}"
-                                                     MaxHeight="90"
-                                                     BorderThickness="0"
-                                                     Background="Transparent"
-                                                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                                                     ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                                     behaviors:AutoScrollBehavior.Enable="True">
-                                                <ListBox.ItemContainerStyle>
-                                                    <Style TargetType="ListBoxItem">
-                                                        <Setter Property="Focusable" Value="False" />
-                                                        <Setter Property="IsHitTestVisible" Value="False" />
-                                                        <Setter Property="Padding" Value="0" />
-                                                        <Setter Property="Margin" Value="0" />
-                                                    </Style>
-                                                </ListBox.ItemContainerStyle>
-                                                <ListBox.ItemTemplate>
-                                                    <DataTemplate>
-                                                        <TextBlock Text="{Binding}"
-                                                                   FontFamily="Consolas"
-                                                                   FontSize="11"
-                                                                   TextWrapping="Wrap" />
-                                                    </DataTemplate>
-                                                </ListBox.ItemTemplate>
-                                            </ListBox>
-                                        </Border>
                                         <TextBlock Text="{Binding LastCheckTime, StringFormat=最後檢查: {0:yyyy/MM/dd HH:mm:ss}, TargetNullValue=最後檢查: 未檢查}"
                                                    FontSize="12"
                                                    Opacity="0.7"
                                                    Margin="0,8,0,0" />
                                         <TextBlock Text="{Binding AverageResponseTimeMs, StringFormat=平均回應: {0:N2} ms, TargetNullValue=平均回應: --}"
                                                    FontSize="12"
-                                                   Opacity="0.7" />
+                                                   Opacity="0.7"
+                                                   Margin="0,4,0,0" />
                                         <ProgressBar Height="4" Margin="0,8,0,0" IsIndeterminate="True">
                                             <ProgressBar.Style>
                                                 <Style TargetType="ProgressBar">
@@ -91,19 +65,73 @@
                                         </ProgressBar>
                                     </StackPanel>
 
-                                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                    <!-- 第二欄：Mini Console -->
+                                    <Border Grid.Column="1"
+                                            Margin="0,0,16,0"
+                                            Padding="8"
+                                            Background="#0A000000"
+                                            BorderBrush="#22000000"
+                                            BorderThickness="1"
+                                            CornerRadius="4">
+                                        <ListBox ItemsSource="{Binding CommandLog}"
+                                                 MaxHeight="120"
+                                                 BorderThickness="0"
+                                                 Background="Transparent"
+                                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                                 ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                                 behaviors:AutoScrollBehavior.Enable="True">
+                                            <ListBox.ItemContainerStyle>
+                                                <Style TargetType="ListBoxItem">
+                                                    <Setter Property="Focusable" Value="False" />
+                                                    <Setter Property="IsHitTestVisible" Value="False" />
+                                                    <Setter Property="Padding" Value="0" />
+                                                    <Setter Property="Margin" Value="0" />
+                                                </Style>
+                                            </ListBox.ItemContainerStyle>
+                                            <ListBox.ItemTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding}"
+                                                               FontFamily="Consolas"
+                                                               FontSize="11"
+                                                               TextWrapping="Wrap" />
+                                                </DataTemplate>
+                                            </ListBox.ItemTemplate>
+                                        </ListBox>
+                                    </Border>
+
+                                    <!-- 第三欄：預留空間（未來圖表） -->
+                                    <Border Grid.Column="2"
+                                            Margin="0,0,16,0"
+                                            Background="#05000000"
+                                            BorderBrush="#11000000"
+                                            BorderThickness="1"
+                                            CornerRadius="4">
+                                        <TextBlock Text="圖表區域"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"
+                                                   Opacity="0.3"
+                                                   FontStyle="Italic" />
+                                    </Border>
+
+                                    <!-- 第四欄：功能按鈕 -->
+                                    <StackPanel Grid.Column="3" VerticalAlignment="Center">
                                         <Button Content="編輯"
                                                 Command="{Binding DataContext.EditHostCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"
-                                                Margin="4" />
+                                                Style="{StaticResource MaterialDesignOutlinedButton}"
+                                                Width="90"
+                                                Margin="0,0,0,8" />
                                         <Button Content="刪除"
                                                 Command="{Binding DataContext.DeleteHostCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"
-                                                Margin="4" />
+                                                Style="{StaticResource MaterialDesignOutlinedButton}"
+                                                Width="90"
+                                                Margin="0,0,0,8" />
                                         <Button Content="立即檢查"
                                                 Command="{Binding DataContext.ManualCheckCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"
-                                                Margin="4" />
+                                                Style="{StaticResource MaterialDesignRaisedButton}"
+                                                Width="90" />
                                     </StackPanel>
                                 </Grid>
                             </materialDesign:Card>
