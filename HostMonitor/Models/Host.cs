@@ -9,6 +9,8 @@ namespace HostMonitor.Models;
 /// </summary>
 public class Host : ObservableObject
 {
+    private const int MaxResponseTimeHistoryEntries = 30;
+
     private Guid id;
     private string name = string.Empty;
     private string hostnameOrIp = string.Empty;
@@ -21,6 +23,7 @@ public class Host : ObservableObject
     private double? averageResponseTimeMs;
     private string? lastErrorMessage;
     private ObservableCollection<string> commandLog = new();
+    private ObservableCollection<double> responseTimeHistory = new();
 
     /// <summary>
     /// Gets or sets the host identifier.
@@ -160,4 +163,21 @@ public class Host : ObservableObject
     /// Gets the recent command log entries.
     /// </summary>
     public ObservableCollection<string> CommandLog => commandLog;
+
+    /// <summary>
+    /// Gets the response time history for charting.
+    /// </summary>
+    public ObservableCollection<double> ResponseTimeHistory => responseTimeHistory;
+
+    /// <summary>
+    /// Adds a response time entry to the history.
+    /// </summary>
+    public void AddResponseTime(double responseTimeMs)
+    {
+        ResponseTimeHistory.Add(responseTimeMs);
+        while (ResponseTimeHistory.Count > MaxResponseTimeHistoryEntries)
+        {
+            ResponseTimeHistory.RemoveAt(0);
+        }
+    }
 }

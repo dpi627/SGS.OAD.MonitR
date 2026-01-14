@@ -6,6 +6,7 @@
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:behaviors="clr-namespace:HostMonitor.Behaviors"
              xmlns:models="clr-namespace:HostMonitor.Models.Enums"
+             xmlns:controls="clr-namespace:HostMonitor.Controls"
              mc:Ignorable="d">
     <DockPanel Margin="16">
         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,16">
@@ -27,8 +28,8 @@
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="2*" MinWidth="200" />
+                                        <ColumnDefinition Width="2.5*" MinWidth="200" />
                                         <ColumnDefinition Width="3*" MinWidth="250" />
-                                        <ColumnDefinition Width="2*" MinWidth="150" />
                                         <ColumnDefinition Width="Auto" />
                                     </Grid.ColumnDefinitions>
 
@@ -99,18 +100,29 @@
                                         </ListBox>
                                     </Border>
 
-                                    <!-- 第三欄：預留空間（未來圖表） -->
+                                    <!-- 第三欄：回應時間圖表 -->
                                     <Border Grid.Column="2"
                                             Margin="0,0,16,0"
                                             Background="#05000000"
                                             BorderBrush="#11000000"
                                             BorderThickness="1"
                                             CornerRadius="4">
-                                        <TextBlock Text="圖表區域"
-                                                   HorizontalAlignment="Center"
-                                                   VerticalAlignment="Center"
-                                                   Opacity="0.3"
-                                                   FontStyle="Italic" />
+                                        <Grid>
+                                            <controls:ResponseTimeChart Values="{Binding ResponseTimeHistory}"
+                                                                         Height="100" />
+                                            <TextBlock Text="回應時間 (ms)"
+                                                       HorizontalAlignment="Left"
+                                                       VerticalAlignment="Top"
+                                                       Margin="8,4,0,0"
+                                                       FontSize="10"
+                                                       Opacity="0.5" />
+                                            <TextBlock Text="{Binding ResponseTimeHistory.Count, StringFormat=({0})}"
+                                                       HorizontalAlignment="Right"
+                                                       VerticalAlignment="Top"
+                                                       Margin="0,4,8,0"
+                                                       FontSize="10"
+                                                       Opacity="0.5" />
+                                        </Grid>
                                     </Border>
 
                                     <!-- 第四欄：功能按鈕 -->

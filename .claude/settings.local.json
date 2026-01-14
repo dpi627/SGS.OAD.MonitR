@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:livecharts.dev)",
+      "Bash(dotnet add package:*)",
+      "Bash(dotnet build)",
+      "Bash(dotnet clean)",
+      "Bash(dir:*)",
+      "Bash(dotnet remove package:*)"
+    ]
+  }
+}

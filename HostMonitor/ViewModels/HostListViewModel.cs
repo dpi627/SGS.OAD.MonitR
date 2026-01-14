@@ -123,6 +123,12 @@ public partial class HostListViewModel : ObservableObject
             : $"FAIL {result.ErrorMessage ?? "Unknown error"}";
         var line = $"[{timestamp:HH:mm:ss}] <- {status}";
         AppendLine(host, line);
+
+        // Update response time chart
+        if (result.IsSuccess)
+        {
+            host.AddResponseTime(result.ResponseTimeMs);
+        }
     }
 
     private static void AppendLine(Host host, string line)
