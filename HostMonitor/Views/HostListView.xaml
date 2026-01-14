@@ -105,8 +105,8 @@
                                     <Border Grid.Column="1"
                                             Margin="0,0,16,0"
                                             Padding="8"
-                                            Background="#0A000000"
-                                            BorderBrush="#22000000"
+                                            Background="#1E1E1E"
+                                            BorderBrush="#333333"
                                             BorderThickness="1"
                                             CornerRadius="4"
                                             Visibility="{Binding DataContext.ShowCommandLog, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}">
@@ -130,6 +130,7 @@
                                                     <TextBlock Text="{Binding}"
                                                                FontFamily="Consolas"
                                                                FontSize="11"
+                                                               Foreground="#D4D4D4"
                                                                TextWrapping="Wrap" />
                                                 </DataTemplate>
                                             </ListBox.ItemTemplate>
