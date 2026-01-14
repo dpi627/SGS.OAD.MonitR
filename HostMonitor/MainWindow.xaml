@@ -19,14 +19,18 @@
                 <DockPanel>
                     <TextBlock Text="HostMonitor" FontSize="22" VerticalAlignment="Center" />
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                        <Button Content="開始監控"
-                                Command="{Binding StartMonitoringCommand}"
+                        <Button Command="{Binding StartMonitoringCommand}"
                                 IsEnabled="{Binding IsMonitoring, Converter={StaticResource InverseBoolConverter}}"
-                                Margin="8,0" />
-                        <Button Content="停止監控"
-                                Command="{Binding StopMonitoringCommand}"
+                                ToolTip="開始監控"
+                                Margin="8,0">
+                            <materialDesign:PackIcon Kind="Play" />
+                        </Button>
+                        <Button Command="{Binding StopMonitoringCommand}"
                                 IsEnabled="{Binding IsMonitoring}"
-                                Margin="8,0" />
+                                ToolTip="停止監控"
+                                Margin="8,0">
+                            <materialDesign:PackIcon Kind="Stop" />
+                        </Button>
                     </StackPanel>
                 </DockPanel>
             </materialDesign:ColorZone>

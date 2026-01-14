@@ -10,13 +10,26 @@
              mc:Ignorable="d">
     <DockPanel Margin="16">
         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,16">
-            <Button Content="新增主機"
-                    Command="{Binding AddHostCommand}"
-                    Style="{StaticResource MaterialDesignRaisedButton}" />
+            <Button Command="{Binding AddHostCommand}"
+                    Style="{StaticResource MaterialDesignRaisedButton}"
+                    ToolTip="新增主機">
+                <materialDesign:PackIcon Kind="Plus" />
+            </Button>
             <TextBox materialDesign:HintAssist.Hint="搜尋主機..."
                      Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
                      Width="200"
                      Margin="16,0" />
+            <ToggleButton IsChecked="{Binding ShowCommandLog}"
+                          Style="{StaticResource MaterialDesignFlatPrimaryToggleButton}"
+                          ToolTip="顯示/隱藏指令視窗">
+                <materialDesign:PackIcon Kind="Console" />
+            </ToggleButton>
+            <ToggleButton IsChecked="{Binding ShowChart}"
+                          Style="{StaticResource MaterialDesignFlatPrimaryToggleButton}"
+                          ToolTip="顯示/隱藏圖表"
+                          Margin="4,0,0,0">
+                <materialDesign:PackIcon Kind="ChartLine" />
+            </ToggleButton>
         </StackPanel>
 
         <Grid>
@@ -28,8 +41,30 @@
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="2*" MinWidth="200" />
-                                        <ColumnDefinition Width="2.5*" MinWidth="200" />
-                                        <ColumnDefinition Width="3*" MinWidth="250" />
+                                        <ColumnDefinition MinWidth="0">
+                                            <ColumnDefinition.Style>
+                                                <Style TargetType="ColumnDefinition">
+                                                    <Setter Property="Width" Value="2.5*" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding DataContext.ShowCommandLog, RelativeSource={RelativeSource AncestorType=UserControl}}" Value="False">
+                                                            <Setter Property="Width" Value="0" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </ColumnDefinition.Style>
+                                        </ColumnDefinition>
+                                        <ColumnDefinition MinWidth="0">
+                                            <ColumnDefinition.Style>
+                                                <Style TargetType="ColumnDefinition">
+                                                    <Setter Property="Width" Value="3*" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding DataContext.ShowChart, RelativeSource={RelativeSource AncestorType=UserControl}}" Value="False">
+                                                            <Setter Property="Width" Value="0" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </ColumnDefinition.Style>
+                                        </ColumnDefinition>
                                         <ColumnDefinition Width="Auto" />
                                     </Grid.ColumnDefinitions>
 
@@ -73,7 +108,8 @@
                                             Background="#0A000000"
                                             BorderBrush="#22000000"
                                             BorderThickness="1"
-                                            CornerRadius="4">
+                                            CornerRadius="4"
+                                            Visibility="{Binding DataContext.ShowCommandLog, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}">
                                         <ListBox ItemsSource="{Binding CommandLog}"
                                                  MaxHeight="120"
                                                  BorderThickness="0"
@@ -106,7 +142,8 @@
                                             Background="#05000000"
                                             BorderBrush="#11000000"
                                             BorderThickness="1"
-                                            CornerRadius="4">
+                                            CornerRadius="4"
+                                            Visibility="{Binding DataContext.ShowChart, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}">
                                         <Grid>
                                             <controls:ResponseTimeChart Values="{Binding ResponseTimeHistory}"
                                                                          Height="100" />
@@ -126,24 +163,27 @@
                                     </Border>
 
                                     <!-- 第四欄：功能按鈕 -->
-                                    <StackPanel Grid.Column="3" VerticalAlignment="Center">
-                                        <Button Content="編輯"
-                                                Command="{Binding DataContext.EditHostCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                    <StackPanel Grid.Column="3" VerticalAlignment="Center" Orientation="Horizontal">
+                                        <Button Command="{Binding DataContext.EditHostCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"
-                                                Style="{StaticResource MaterialDesignOutlinedButton}"
-                                                Width="90"
-                                                Margin="0,0,0,8" />
-                                        <Button Content="刪除"
-                                                Command="{Binding DataContext.DeleteHostCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                Style="{StaticResource MaterialDesignIconButton}"
+                                                ToolTip="編輯"
+                                                Margin="0,0,4,0">
+                                            <materialDesign:PackIcon Kind="Pencil" />
+                                        </Button>
+                                        <Button Command="{Binding DataContext.DeleteHostCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"
-                                                Style="{StaticResource MaterialDesignOutlinedButton}"
-                                                Width="90"
-                                                Margin="0,0,0,8" />
-                                        <Button Content="立即檢查"
-                                                Command="{Binding DataContext.ManualCheckCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                Style="{StaticResource MaterialDesignIconButton}"
+                                                ToolTip="刪除"
+                                                Margin="0,0,4,0">
+                                            <materialDesign:PackIcon Kind="Delete" />
+                                        </Button>
+                                        <Button Command="{Binding DataContext.ManualCheckCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"
-                                                Style="{StaticResource MaterialDesignRaisedButton}"
-                                                Width="90" />
+                                                Style="{StaticResource MaterialDesignIconButton}"
+                                                ToolTip="立即檢查">
+                                            <materialDesign:PackIcon Kind="Refresh" />
+                                        </Button>
                                     </StackPanel>
                                 </Grid>
                             </materialDesign:Card>
@@ -165,9 +205,11 @@
                 </StackPanel.Style>
                 <TextBlock Text="尚無主機" FontSize="20" FontWeight="Bold" Margin="0,0,0,8" />
                 <TextBlock Text="點擊下方按鈕新增第一台主機" Margin="0,0,0,16" />
-                <Button Content="新增主機"
-                        Command="{Binding AddHostCommand}"
-                        Style="{StaticResource MaterialDesignRaisedButton}" />
+                <Button Command="{Binding AddHostCommand}"
+                        Style="{StaticResource MaterialDesignRaisedButton}"
+                        ToolTip="新增主機">
+                    <materialDesign:PackIcon Kind="Plus" />
+                </Button>
             </StackPanel>
         </Grid>
     </DockPanel>

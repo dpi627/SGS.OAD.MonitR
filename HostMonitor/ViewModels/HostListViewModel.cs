@@ -38,6 +38,12 @@ public partial class HostListViewModel : ObservableObject
     [ObservableProperty]
     private string? searchText;
 
+    [ObservableProperty]
+    private bool showCommandLog = true;
+
+    [ObservableProperty]
+    private bool showChart = true;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="HostListViewModel"/> class.
     /// </summary>
