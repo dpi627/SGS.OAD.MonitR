@@ -27,6 +27,11 @@ public partial class MainWindow : Window
             await ShowAddEditDialogAsync(message.ViewModel);
         });
 
+        WeakReferenceMessenger.Default.Register<OpenSettingsDialogMessage>(this, async (_, message) =>
+        {
+            await ShowSettingsDialogAsync(message.ViewModel);
+        });
+
         WeakReferenceMessenger.Default.Register<ConfirmDeleteHostMessage>(this, async (_, message) =>
         {
             await ShowDeleteConfirmAsync(message);
@@ -48,6 +53,16 @@ public partial class MainWindow : Window
     private static Task ShowAddEditDialogAsync(AddEditHostViewModel viewModel)
     {
         var dialog = new AddEditHostDialog
+        {
+            DataContext = viewModel
+        };
+
+        return DialogHost.Show(dialog, "RootDialog");
+    }
+
+    private static Task ShowSettingsDialogAsync(SettingsViewModel viewModel)
+    {
+        var dialog = new SettingsDialog
         {
             DataContext = viewModel
         };

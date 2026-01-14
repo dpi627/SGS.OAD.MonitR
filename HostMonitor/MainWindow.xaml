@@ -19,6 +19,11 @@
                 <DockPanel>
                     <TextBlock Text="HostMonitor" FontSize="22" VerticalAlignment="Center" />
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Command="{Binding OpenSettingsCommand}"
+                                ToolTip="設定"
+                                Margin="8,0">
+                            <materialDesign:PackIcon Kind="Cog" />
+                        </Button>
                         <Button Command="{Binding StartMonitoringCommand}"
                                 IsEnabled="{Binding IsMonitoring, Converter={StaticResource InverseBoolConverter}}"
                                 ToolTip="開始監控"

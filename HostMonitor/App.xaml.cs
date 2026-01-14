@@ -29,12 +29,14 @@ public partial class App : System.Windows.Application
         services.AddSingleton<IHostDataService, HostDataService>();
         services.AddSingleton<MonitorOrchestrator>();
         services.AddSingleton<NotificationService>();
+        services.AddSingleton<SettingsService>();
         services.AddTransient<IMonitorService, PingMonitorService>();
         services.AddTransient<IMonitorService, TcpPortMonitorService>();
 
         services.AddTransient<MainViewModel>();
         services.AddTransient<HostListViewModel>();
         services.AddTransient<AddEditHostViewModel>();
+        services.AddTransient<SettingsViewModel>();
 
         services.AddTransient<MainWindow>();
 

@@ -12,15 +12,17 @@ public class MonitorOrchestrator
     private readonly Dictionary<MonitorType, IMonitorService> _serviceMap;
     private readonly Dictionary<Guid, CancellationTokenSource> _monitoringTasks;
     private readonly Dictionary<Guid, List<Task>> _activeTasks;
+    private readonly SettingsService _settingsService;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="MonitorOrchestrator"/> class.
     /// </summary>
-    public MonitorOrchestrator(IEnumerable<IMonitorService> monitorServices)
+    public MonitorOrchestrator(IEnumerable<IMonitorService> monitorServices, SettingsService settingsService)
     {
         _serviceMap = monitorServices.ToDictionary(service => service.SupportedType);
         _monitoringTasks = new Dictionary<Guid, CancellationTokenSource>();
         _activeTasks = new Dictionary<Guid, List<Task>>();
+        _settingsService = settingsService;
     }
 
     /// <summary>
@@ -93,16 +95,16 @@ public class MonitorOrchestrator
 
     private async Task RunMonitorLoopAsync(Host host, MonitorMethod method, CancellationToken cancellationToken)
     {
-        var intervalSeconds = method.IntervalSeconds > 0 ? method.IntervalSeconds : 60;
-        using var timer = new PeriodicTimer(TimeSpan.FromSeconds(intervalSeconds));
-
         try
         {
             var initialResult = await ExecuteCheckAsync(host, method, cancellationToken);
             MonitorResultReceived?.Invoke(this, initialResult);
 
-            while (await timer.WaitForNextTickAsync(cancellationToken))
+            while (!cancellationToken.IsCancellationRequested)
             {
+                var intervalSeconds = _settingsService.MonitorIntervalSeconds;
+                await Task.Delay(TimeSpan.FromSeconds(intervalSeconds), cancellationToken);
+
                 var result = await ExecuteCheckAsync(host, method, cancellationToken);
                 MonitorResultReceived?.Invoke(this, result);
             }

@@ -28,6 +28,7 @@ public partial class MainViewModel : ObservableObject
 
     private readonly MonitorOrchestrator _orchestrator;
     private readonly NotificationService _notificationService;
+    private readonly SettingsViewModel _settingsViewModel;
     private readonly Dictionary<Guid, Dictionary<MonitorMethodKey, MonitorResult>> _latestResults = new();
     private CancellationTokenSource? _monitoringCts;
     private System.Threading.Timer? _offlineNotificationTimer;
@@ -60,11 +61,13 @@ public partial class MainViewModel : ObservableObject
     public MainViewModel(
         HostListViewModel hostListViewModel,
         MonitorOrchestrator orchestrator,
-        NotificationService notificationService)
+        NotificationService notificationService,
+        SettingsViewModel settingsViewModel)
     {
         HostListViewModel = hostListViewModel;
         _orchestrator = orchestrator;
         _notificationService = notificationService;
+        _settingsViewModel = settingsViewModel;
         SnackbarMessageQueue = notificationService.MessageQueue;
         AppVersion = GetAppVersion();
         UserName = Environment.UserName;
@@ -134,6 +137,13 @@ public partial class MainViewModel : ObservableObject
     {
         var version = Assembly.GetEntryAssembly()?.GetName().Version;
         return version is null ? "1.0.0.0" : version.ToString();
+    }
+
+    [RelayCommand]
+    private void OpenSettings()
+    {
+        _settingsViewModel.Load();
+        WeakReferenceMessenger.Default.Send(new OpenSettingsDialogMessage(_settingsViewModel));
     }
 
     [RelayCommand]
