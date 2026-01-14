@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -70,9 +71,14 @@ public partial class MainViewModel : ObservableObject
         MonitorHostCount = HostListViewModel.Hosts.Count;
         HostListViewModel.Hosts.CollectionChanged += OnHostsCollectionChanged;
 
+        foreach (var host in HostListViewModel.Hosts)
+        {
+            host.PropertyChanged += OnHostPropertyChanged;
+        }
+
         WeakReferenceMessenger.Default.Register<HostChangedMessage>(this, async (_, message) =>
         {
-            if (!message.IsEdit && IsMonitoring)
+            if (!message.IsEdit && IsMonitoring && message.Host.IsMonitoringEnabled)
             {
                 await StartMonitoringHostAsync(message.Host);
             }
@@ -87,6 +93,41 @@ public partial class MainViewModel : ObservableObject
     private void OnHostsCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
         MonitorHostCount = HostListViewModel.Hosts.Count;
+
+        if (e.OldItems is not null)
+        {
+            foreach (Host host in e.OldItems)
+            {
+                host.PropertyChanged -= OnHostPropertyChanged;
+            }
+        }
+
+        if (e.NewItems is not null)
+        {
+            foreach (Host host in e.NewItems)
+            {
+                host.PropertyChanged += OnHostPropertyChanged;
+            }
+        }
+    }
+
+    private async void OnHostPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName != nameof(Host.IsMonitoringEnabled) || !IsMonitoring || sender is not Host host)
+        {
+            return;
+        }
+
+        if (host.IsMonitoringEnabled)
+        {
+            await StartMonitoringHostAsync(host);
+        }
+        else
+        {
+            _orchestrator.StopMonitoring(host.Id);
+            host.CurrentStatus = HostStatus.Unknown;
+            _latestResults.Remove(host.Id);
+        }
     }
 
     private static string GetAppVersion()
@@ -113,7 +154,7 @@ public partial class MainViewModel : ObservableObject
 
         try
         {
-            foreach (var host in HostListViewModel.Hosts)
+            foreach (var host in HostListViewModel.Hosts.Where(h => h.IsMonitoringEnabled))
             {
                 host.CurrentStatus = HostStatus.Checking;
                 host.ResponseTimeHistory.Clear();

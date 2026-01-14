@@ -165,6 +165,10 @@
 
                                     <!-- 第四欄：功能按鈕 -->
                                     <StackPanel Grid.Column="3" VerticalAlignment="Center" Orientation="Horizontal">
+                                        <ToggleButton IsChecked="{Binding IsMonitoringEnabled}"
+                                                      Style="{StaticResource MaterialDesignSwitchToggleButton}"
+                                                      ToolTip="啟用/停用監控"
+                                                      Margin="0,0,8,0" />
                                         <Button Command="{Binding DataContext.EditHostCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"
                                                 Style="{StaticResource MaterialDesignIconButton}"

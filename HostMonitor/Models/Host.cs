@@ -24,6 +24,7 @@ public class Host : ObservableObject
     private string? lastErrorMessage;
     private ObservableCollection<string> commandLog = new();
     private ObservableCollection<double> responseTimeHistory = new();
+    private bool isMonitoringEnabled = true;
 
     /// <summary>
     /// Gets or sets the host identifier.
@@ -157,6 +158,15 @@ public class Host : ObservableObject
     {
         get => lastErrorMessage;
         set => SetProperty(ref lastErrorMessage, value);
+    }
+
+    /// <summary>
+    /// Gets or sets whether monitoring is enabled for this host.
+    /// </summary>
+    public bool IsMonitoringEnabled
+    {
+        get => isMonitoringEnabled;
+        set => SetProperty(ref isMonitoringEnabled, value);
     }
 
     /// <summary>
