@@ -1,4 +1,7 @@
 using System;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
 using WpfApplication = System.Windows.Application;
 using MaterialDesignThemes.Wpf;
 
@@ -35,7 +38,7 @@ public sealed class NotificationService
     /// </summary>
     public void ShowSuccess(string message)
     {
-        Enqueue(NotificationKind.Success, message);
+        Enqueue(NotificationKind.Success, message, PackIconKind.CheckCircle, "#4CAF50");
     }
 
     /// <summary>
@@ -43,7 +46,7 @@ public sealed class NotificationService
     /// </summary>
     public void ShowError(string message)
     {
-        Enqueue(NotificationKind.Error, message);
+        Enqueue(NotificationKind.Error, message, PackIconKind.AlertCircle, "#F44336");
     }
 
     /// <summary>
@@ -51,14 +54,15 @@ public sealed class NotificationService
     /// </summary>
     public void ShowWarning(string message)
     {
-        Enqueue(NotificationKind.Warning, message);
+        Enqueue(NotificationKind.Warning, message, PackIconKind.Alert, "#FF9800");
     }
 
-    private void Enqueue(NotificationKind kind, string message)
+    private void Enqueue(NotificationKind kind, string message, PackIconKind iconKind, string colorHex)
     {
         void EnqueueCore()
         {
-            MessageQueue.Enqueue(message);
+            var content = CreateNotificationContent(message, iconKind, colorHex);
+            MessageQueue.Enqueue(content);
             NotificationRaised?.Invoke(this, new NotificationEventArgs(kind, message));
         }
 
@@ -71,5 +75,36 @@ public sealed class NotificationService
         {
             dispatcher.BeginInvoke((Action)EnqueueCore);
         }
+    }
+
+    private static object CreateNotificationContent(string message, PackIconKind iconKind, string colorHex)
+    {
+        var color = (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(colorHex);
+        var brush = new SolidColorBrush(color);
+
+        var icon = new PackIcon
+        {
+            Kind = iconKind,
+            Foreground = brush,
+            Width = 20,
+            Height = 20,
+            VerticalAlignment = VerticalAlignment.Center,
+            Margin = new Thickness(0, 0, 8, 0)
+        };
+
+        var text = new TextBlock
+        {
+            Text = message,
+            VerticalAlignment = VerticalAlignment.Center
+        };
+
+        var panel = new StackPanel
+        {
+            Orientation = System.Windows.Controls.Orientation.Horizontal
+        };
+        panel.Children.Add(icon);
+        panel.Children.Add(text);
+
+        return panel;
     }
 }

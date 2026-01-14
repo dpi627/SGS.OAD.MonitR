@@ -153,14 +153,15 @@ public partial class App : System.Windows.Application
             return;
         }
 
+        // Only show system notification for errors (host offline/anomaly)
+        if (args.Kind != NotificationKind.Error)
+        {
+            return;
+        }
+
         _notifyIcon.BalloonTipTitle = "HostMonitor";
         _notifyIcon.BalloonTipText = args.Message;
-        _notifyIcon.BalloonTipIcon = args.Kind switch
-        {
-            NotificationKind.Warning => WinForms.ToolTipIcon.Warning,
-            NotificationKind.Error => WinForms.ToolTipIcon.Error,
-            _ => WinForms.ToolTipIcon.Info
-        };
+        _notifyIcon.BalloonTipIcon = WinForms.ToolTipIcon.Error;
         _notifyIcon.ShowBalloonTip(3000);
     }
 }

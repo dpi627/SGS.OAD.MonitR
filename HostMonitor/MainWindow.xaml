@@ -13,8 +13,9 @@
         Background="{DynamicResource MaterialDesignPaper}"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}">
     <materialDesign:DialogHost Identifier="RootDialog">
-        <DockPanel>
-            <materialDesign:ColorZone DockPanel.Dock="Top" Mode="PrimaryMid" Padding="16">
+        <Grid>
+            <DockPanel>
+                <materialDesign:ColorZone DockPanel.Dock="Top" Mode="PrimaryMid" Padding="16">
                 <DockPanel>
                     <TextBlock Text="HostMonitor" FontSize="22" VerticalAlignment="Center" />
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
@@ -101,11 +102,13 @@
                 </Grid>
             </Border>
 
-            <materialDesign:Snackbar DockPanel.Dock="Bottom"
-                                     MessageQueue="{Binding SnackbarMessageQueue}"
-                                     Margin="16" />
+                <ContentControl Content="{Binding HostListViewModel}" DockPanel.Dock="Top" />
+            </DockPanel>
 
-            <ContentControl Content="{Binding HostListViewModel}" DockPanel.Dock="Top" />
-        </DockPanel>
+            <materialDesign:Snackbar MessageQueue="{Binding SnackbarMessageQueue}"
+                                     HorizontalAlignment="Center"
+                                     VerticalAlignment="Bottom"
+                                     Margin="0,0,0,40" />
+        </Grid>
     </materialDesign:DialogHost>
 </Window>
