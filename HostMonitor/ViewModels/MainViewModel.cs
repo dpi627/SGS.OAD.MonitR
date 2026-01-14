@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
+using HostMonitor.Messages;
 using HostMonitor.Models;
 using HostMonitor.Models.Enums;
 using HostMonitor.Services;
@@ -64,6 +66,14 @@ public partial class MainViewModel : ObservableObject
         UserName = Environment.UserName;
         MonitorHostCount = HostListViewModel.Hosts.Count;
         HostListViewModel.Hosts.CollectionChanged += OnHostsCollectionChanged;
+
+        WeakReferenceMessenger.Default.Register<HostChangedMessage>(this, async (_, message) =>
+        {
+            if (!message.IsEdit && IsMonitoring)
+            {
+                await StartMonitoringHostAsync(message.Host);
+            }
+        });
     }
 
     /// <summary>
@@ -116,6 +126,20 @@ public partial class MainViewModel : ObservableObject
             IsMonitoring = false;
             throw;
         }
+    }
+
+    private async Task StartMonitoringHostAsync(Host host)
+    {
+        if (_monitoringCts is null)
+        {
+            return;
+        }
+
+        host.CurrentStatus = HostStatus.Checking;
+        host.ResponseTimeHistory.Clear();
+        host.ResponseTimeHistory.Add(0);
+        _latestResults[host.Id] = new Dictionary<MonitorMethodKey, MonitorResult>();
+        await _orchestrator.StartMonitoringAsync(host, _monitoringCts.Token);
     }
 
     [RelayCommand]
