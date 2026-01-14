@@ -23,10 +23,13 @@ namespace HostMonitor.ViewModels;
 /// </summary>
 public partial class MainViewModel : ObservableObject
 {
+    private const int OfflineNotificationIntervalSeconds = 30;
+
     private readonly MonitorOrchestrator _orchestrator;
     private readonly NotificationService _notificationService;
     private readonly Dictionary<Guid, Dictionary<MonitorMethodKey, MonitorResult>> _latestResults = new();
     private CancellationTokenSource? _monitoringCts;
+    private System.Threading.Timer? _offlineNotificationTimer;
 
     [ObservableProperty]
     private HostListViewModel hostListViewModel;
@@ -120,6 +123,7 @@ public partial class MainViewModel : ObservableObject
             }
 
             _notificationService.ShowSuccess("已開始監控");
+            StartOfflineNotificationTimer();
         }
         catch
         {
@@ -153,6 +157,8 @@ public partial class MainViewModel : ObservableObject
         _monitoringCts?.Cancel();
         _monitoringCts?.Dispose();
         _monitoringCts = null;
+
+        StopOfflineNotificationTimer();
 
         foreach (var host in HostListViewModel.Hosts)
         {
@@ -247,4 +253,55 @@ public partial class MainViewModel : ObservableObject
     }
 
     private readonly record struct MonitorMethodKey(MonitorType Type, int? Port);
+
+    private void StartOfflineNotificationTimer()
+    {
+        StopOfflineNotificationTimer();
+        _offlineNotificationTimer = new System.Threading.Timer(
+            OnOfflineNotificationTimerTick,
+            null,
+            TimeSpan.FromSeconds(OfflineNotificationIntervalSeconds),
+            TimeSpan.FromSeconds(OfflineNotificationIntervalSeconds));
+    }
+
+    private void StopOfflineNotificationTimer()
+    {
+        _offlineNotificationTimer?.Dispose();
+        _offlineNotificationTimer = null;
+    }
+
+    private void OnOfflineNotificationTimerTick(object? state)
+    {
+        if (!IsMonitoring)
+        {
+            return;
+        }
+
+        var offlineHosts = HostListViewModel.Hosts
+            .Where(h => h.CurrentStatus == HostStatus.Offline)
+            .ToList();
+
+        if (offlineHosts.Count == 0)
+        {
+            return;
+        }
+
+        var dispatcher = System.Windows.Application.Current?.Dispatcher;
+        if (dispatcher is null)
+        {
+            NotifyOfflineHosts(offlineHosts);
+            return;
+        }
+
+        dispatcher.BeginInvoke(() => NotifyOfflineHosts(offlineHosts));
+    }
+
+    private void NotifyOfflineHosts(List<Host> offlineHosts)
+    {
+        var names = string.Join(", ", offlineHosts.Select(h => h.Name));
+        var message = offlineHosts.Count == 1
+            ? $"主機離線: {names}"
+            : $"{offlineHosts.Count} 台主機離線: {names}";
+        _notificationService.ShowError(message);
+    }
 }
