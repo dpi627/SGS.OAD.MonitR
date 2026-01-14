@@ -103,6 +103,8 @@ public partial class MainViewModel : ObservableObject
             foreach (var host in HostListViewModel.Hosts)
             {
                 host.CurrentStatus = HostStatus.Checking;
+                host.ResponseTimeHistory.Clear();
+                host.ResponseTimeHistory.Add(0);
                 _latestResults[host.Id] = new Dictionary<MonitorMethodKey, MonitorResult>();
                 await _orchestrator.StartMonitoringAsync(host, _monitoringCts.Token);
             }

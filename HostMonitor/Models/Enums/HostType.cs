@@ -6,22 +6,32 @@ namespace HostMonitor.Models.Enums;
 public enum HostType
 {
     /// <summary>
-    /// Windows PC.
+    /// Personal Computer.
     /// </summary>
-    WindowsPC,
+    PC,
 
     /// <summary>
     /// Database server.
     /// </summary>
-    DatabaseServer,
+    DB,
 
     /// <summary>
     /// Application server.
     /// </summary>
-    ApplicationServer,
+    AP,
 
     /// <summary>
     /// File server.
     /// </summary>
-    FileServer
+    FILE,
+
+    /// <summary>
+    /// Web server.
+    /// </summary>
+    WEB,
+
+    /// <summary>
+    /// API server.
+    /// </summary>
+    API
 }

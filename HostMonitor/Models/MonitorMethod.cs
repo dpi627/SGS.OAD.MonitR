@@ -30,5 +30,5 @@ public class MonitorMethod
     /// <summary>
     /// Gets or sets the interval between checks in seconds.
     /// </summary>
-    public int IntervalSeconds { get; set; } = 60;
+    public int IntervalSeconds { get; set; } = 5;
 }

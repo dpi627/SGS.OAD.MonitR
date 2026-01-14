@@ -35,7 +35,7 @@ public partial class AddEditHostViewModel : ObservableObject
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
-    private HostType selectedHostType = HostType.WindowsPC;
+    private HostType selectedHostType = HostType.PC;
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
@@ -261,7 +261,7 @@ public partial class AddEditHostViewModel : ObservableObject
         Name = string.Empty;
         Hostname = string.Empty;
         IpAddress = string.Empty;
-        SelectedHostType = HostType.WindowsPC;
+        SelectedHostType = HostType.PC;
         EnablePingMonitor = true;
         EnableTcpMonitor = false;
         TcpPorts = new ObservableCollection<int> { 80 };

@@ -111,7 +111,7 @@ public class HostDataService : IHostDataService
             Hostname = "localhost",
             HostnameOrIp = "localhost",
             IpAddress = "127.0.0.1",
-            Type = HostType.WindowsPC,
+            Type = HostType.PC,
             MonitorMethods = new List<MonitorMethod>
             {
                 new MonitorMethod
