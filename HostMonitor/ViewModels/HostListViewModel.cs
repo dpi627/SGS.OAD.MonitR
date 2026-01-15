@@ -39,7 +39,7 @@ public partial class HostListViewModel : ObservableObject
     private string? searchText;
 
     [ObservableProperty]
-    private bool showCommandLog = true;
+    private bool showCommandLog = false;
 
     [ObservableProperty]
     private bool showChart = true;
